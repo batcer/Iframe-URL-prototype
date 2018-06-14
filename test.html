@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Outer frame</title>
+</head>
+<body>
+    <iframe src="test_inner.html" id="inner"></iframe>
+    <script type="text/javascript">
+        var changeFromOuter;
+        function passToInnerFrame(hash) {
+            var newLocation = 'test_inner.html' + hash;
+            console.log(newLocation);
+            document.querySelector('#inner').contentWindow.location.replace(newLocation);
+        }
+        passToInnerFrame(window.location.hash);
+
+        window.addEventListener('hashchange', function() {
+            changeFromOuter = true;
+            passToInnerFrame(window.location.hash);
+        });
+
+        window.addEventListener('message', function(event) {
+            if (event.data.type !== 'routeChange') {
+                return;
+            }
+            if (changeFromOuter) {
+                changeFromOuter = false;
+                return;
+            }
+            history.replaceState({}, null, event.data.route);
+        })
+
+    </script>
+</body>
+</html>
